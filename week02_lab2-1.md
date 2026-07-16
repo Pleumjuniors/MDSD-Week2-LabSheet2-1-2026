@@ -273,7 +273,80 @@ void main() {
 ```
 **บันทึกผลการทดลอง: บันทึกโค้ดคำสั่งที่ได้**
 ```dart
-// บันทึกโค้ดในส่วนนี้
+// void main() {
+  // === บล็อกที่ 1: ชนิดข้อมูลพื้นฐาน ===
+  String studentName = "สมชาย ดีใจ";
+  int studentAge = 20;
+  double gpa = 3.75;
+  bool isEnrolled = true;
+
+  print("=== ข้อมูลนักศึกษา ===");
+  print("ชื่อ: $studentName");
+  print("อายุ: $studentAge ปี");
+  print("GPA: $gpa");
+  print("ลงทะเบียนแล้ว: $isEnrolled");
+  print("ปีเกิด (ประมาณ): ${2026 - studentAge}");
+
+  // === บล็อกที่ 2: Null Safety ===
+  print("\n=== Null Safety ===");
+  String? nickname = null;
+  print("ชื่อเล่น: ${nickname ?? 'ไม่มี'}");
+
+  nickname = "ชาย";
+  print("ชื่อเล่น: ${nickname ?? 'ไม่มี'}");
+  print("ความยาว: ${nickname?.length}");
+  print("ตัวพิมพ์ใหญ่: ${nickname?.toUpperCase()}");
+
+  // === บล็อกที่ 3: List และ Map ===
+  print("\n=== รายวิชาที่ลงทะเบียน ===");
+
+  List<String> courses = [
+    "Mobile Dev",
+    "Web Dev",
+    "AI",
+  ];
+
+  Map<String, int> courseScores = {
+    "Mobile Dev": 90,
+    "Web Dev": 85,
+    "AI": 92,
+  };
+
+  // เพิ่มรายวิชาใหม่
+  courses.add("Database");
+  courseScores["Database"] = 88;
+
+  // แสดงรายวิชาและคะแนน
+  for (int i = 0; i < courses.length; i++) {
+    String course = courses[i];
+    int? score = courseScores[course];
+    print("${i + 1}. $course: ${score ?? 'ยังไม่มีคะแนน'} คะแนน");
+  }
+
+  // คำนวณคะแนนเฉลี่ย
+  int total = courseScores.values.reduce((a, b) => a + b);
+  double average = total / courseScores.length;
+  print("\nคะแนนเฉลี่ย: ${average.toStringAsFixed(2)}");
+
+  // 1. หาวิชาที่ได้คะแนนสูงสุด
+  var highest = courseScores.entries.reduce(
+    (a, b) => a.value > b.value ? a : b,
+  );
+  print("วิชาที่ได้คะแนนสูงสุด: ${highest.key} (${highest.value} คะแนน)");
+
+  // 2. นับจำนวนวิชาที่ได้คะแนน >= 90
+  int countHighScore =
+      courseScores.values.where((score) => score >= 90).length;
+  print("จำนวนวิชาที่ได้คะแนนตั้งแต่ 90 ขึ้นไป: $countHighScore");
+
+  // 3. สร้าง Set ของวิชาที่ผ่าน (คะแนน >= 80)
+  Set<String> passedCourses = courseScores.entries
+      .where((entry) => entry.value >= 80)
+      .map((entry) => entry.key)
+      .toSet();
+
+  print("รายวิชาที่ผ่าน (คะแนน >= 80): $passedCourses");
+}
 
 
 ```
@@ -570,7 +643,79 @@ void main() {
 
 **บันทึกผลการทดลอง: บันทึกโค้ดคำสั่งที่ได้**
 ```dart
-// บันทึกโค้ดในส่วนนี้
+// // ===== Function ข้อ 1 =====
+String findTopStudentByFaculty(
+    List<Map<String, dynamic>> students, String faculty) {
+
+  var facultyStudents = students
+      .where((s) => s["faculty"] == faculty)
+      .toList();
+
+  if (facultyStudents.isEmpty) {
+    return "ไม่พบข้อมูล";
+  }
+
+  var topStudent = facultyStudents.reduce(
+      (a, b) => (a["gpa"] as double) > (b["gpa"] as double) ? a : b);
+
+  return topStudent["name"];
+}
+
+// ===== Function ข้อ 2 =====
+Map<String, List<Map<String, dynamic>>> groupByFaculty(
+    List<Map<String, dynamic>> students) {
+
+  Map<String, List<Map<String, dynamic>>> groups = {};
+
+  for (var student in students) {
+    String faculty = student["faculty"];
+
+    groups.putIfAbsent(faculty, () => []);
+    groups[faculty]!.add(student);
+  }
+
+  return groups;
+}
+
+void main() {
+  List<Map<String, dynamic>> students = [
+    {"name": "สมชาย", "gpa": 3.75, "year": 3, "faculty": "วิศวกรรม"},
+    {"name": "สมหญิง", "gpa": 2.50, "year": 1, "faculty": "วิทยาศาสตร์"},
+    {"name": "สมศักดิ์", "gpa": 3.10, "year": 2, "faculty": "วิศวกรรม"},
+    {"name": "สมใจ", "gpa": 1.80, "year": 4, "faculty": "บริหาร"},
+    {"name": "สมปอง", "gpa": 3.50, "year": 2, "faculty": "วิทยาศาสตร์"},
+    {"name": "สมศรี", "gpa": 2.90, "year": 3, "faculty": "บริหาร"},
+  ];
+
+  // ===== ข้อ 1 =====
+  print("=== นักศึกษาคะแนนสูงสุดแต่ละคณะ ===");
+  print("วิศวกรรม: ${findTopStudentByFaculty(students, "วิศวกรรม")}");
+  print("วิทยาศาสตร์: ${findTopStudentByFaculty(students, "วิทยาศาสตร์")}");
+  print("บริหาร: ${findTopStudentByFaculty(students, "บริหาร")}");
+
+  // ===== ข้อ 2 =====
+  print("\n=== จัดกลุ่มตามคณะ ===");
+
+  var groups = groupByFaculty(students);
+
+  groups.forEach((faculty, list) {
+    print("\n$faculty");
+    for (var s in list) {
+      print(" - ${s["name"]} (${s["gpa"]})");
+    }
+  });
+
+  // ===== ข้อ 3 =====
+  print("\n=== GPA สูงสุด 3 อันดับแรก ===");
+
+  students.sort(
+      (a, b) => (b["gpa"] as double).compareTo(a["gpa"] as double));
+
+  for (int i = 0; i < 3; i++) {
+    print(
+        "${i + 1}. ${students[i]["name"]} (${students[i]["faculty"]}) GPA: ${students[i]["gpa"]}");
+  }
+}
 
 
 ```
